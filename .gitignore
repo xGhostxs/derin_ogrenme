@@ -1,0 +1,25 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# Data (raw files stay out of git)
+data/raw/
+data/*.zip
+
+# Large artifacts
+results/checkpoints/
+results/logs/
+results_local/
+smoke*.txt
+inspect_out.txt
+*.pt
+*.pth
+*.safetensors
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

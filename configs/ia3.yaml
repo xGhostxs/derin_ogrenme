@@ -1,0 +1,20 @@
+# IA^3 — EVA-02-Base / fitoplankton (12 sınıf)
+method: ia3
+model_name: eva02_base_patch14_224.mim_in22k
+num_classes: 12
+pretrained: true
+
+epochs: 20
+batch_size: 32
+grad_accum: 1
+num_workers: 2
+
+lr: 1.0e-3
+weight_decay: 0.01
+warmup_ratio: 0.05
+label_smoothing: 0.1
+early_stopping_patience: 4
+grad_clip: 1.0
+
+seed: 42
+amp: true

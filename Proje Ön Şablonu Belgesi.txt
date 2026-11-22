@@ -1,0 +1,156 @@
+# Proje Ön Şablonu Belgesi
+
+
+---
+
+# PROJE TEKNİK VE UYGULAMA DOKÜMANI
+**Proje Adı:** Bulut Altı Biyo-İndikatör Analizi: EVA-02 Mimarisi Üzerinde IA³ ve AdaLoRA Adaptasyon Metotları ile Fitoplankton Tür Sınıflandırması  
+**Tarih:** 2024  
+**Doküman Sürümü:** v1.0  
+**Hedef:** Visual Foundation Model Adaptasyon Projesi  
+
+---
+
+## 1. YÖNETİCİ ÖZETİ 
+
+| Parametre | Tanımlama / İçerik |
+| :--- | :--- |
+| **Seçilen Foundational Model** | **EVA-02-Base** (BAAI, 2023) — ViT-B/16 mimarisi (~86M parametre). ImageNet-22K üzerinde **Masked Image Modeling (MIM)** ile self-supervised ön eğitim, ardından EVA-CLIP modelinden **Knowledge Distillation** ile hibrit eğitilmiştir. |
+| **Uygulanacak Problem** | **Fitoplankton türlerinin mikroskopi görüntülerinden sınıflandırılması.** WHOI-Plankton veri setinden seçilen 12 biyo-indikatör tür üzerinde çok sınıflı sınıflandırma. |
+| **Neden Bu Problem?** | Fitoplanktonlar su kalitesi ve ötrofikasyonun ana göstergesidir; manuel sayım zaman alır. Türler arası morfolojik farklar son derece ince tanelidir (fine-grained); EVA-02'nin MIM ile kazandığı detay odaklı görsel temsillerin uyarlanması bilimsel olarak özgündür. |
+| **Model Adaptasyon Metodu 1** | **IA³ (Infused Adapter by Inhibiting and Amplifying Inner Activations):** Ağırlıkları dondurup attention ve FFN aktivasyonlarını öğrenilebilir vektörlerle ölçeklendirir. Eğitilebilir parametre oranı **~%0.01**'dir. |
+| **Model Adaptasyon Metodu 2** | **AdaLoRA (Adaptive Low-Rank Adaptation):** LoRA rank'larını ($r$) katmanların önem derecesine göre SVD (Singular Value Decomposition) ayrışımı ile eğitim sırasında **dinamik olarak dağıtır**. |
+
+---
+
+## 2. FOUNDATIONAL MODEL DETAYLARI VE TEKNİK ALTYAPI
+
+### 2.1. Mimari Özellikler (EVA-02)
+* **Temel Yapı:** Vision Transformer (ViT-B/16), 86M Parametre, 12 Encoder Blok, SwiGLU aktivasyon fonksiyonları ve Sub-Layer Normalization (SubLN).
+* **Ön Eğitim Stratejisi (Pre-training Paradigm):**
+  1. **Aşama 1 (Self-Supervised MIM):** Görüntü yamalarının (patches) %16-20'si maskelenir. Model, maskelenmiş görsel sembolleri (visual tokens) kestirmeye çalışır.
+  2. **Aşama 2 (Knowledge Distillation):** Mimarinin çıktıları, EVA-CLIP öğretmen modelinin ürettiği öznitelik dizilimlerini taklit edecek şekilde hizalanır.
+* **Ön Eğitim Hata Fonksiyonu:**
+  $$\mathcal{L}_{Toplam} = \mathcal{L}_{MIM} + \lambda \mathcal{L}_{KD}$$
+  * $\mathcal{L}_{MIM}$: Maskelenmiş alanlar için *Cross-Entropy Loss*.
+  * $\mathcal{L}_{KD}$: Öğretmen model ile öğrenci model arasındaki *Kullback-Leibler (KL) Divergence Loss*.
+
+---
+
+## 3. ADAPTASYON METOTLARI VE TEORİK FARK LİSTESİ
+
+### 3.1. IA³ (Infused Adapter by Inhibiting and Amplifying Inner Activations)
+* **Çalışma Prensibi:** Modelin orijinal ağırlık matrislerini ($W_0$) tamamen dondurur. Key ($K$), Value ($V$) ve Feed-Forward Network ($FFN$) aktivasyonlarını doğrudan çarpımsal öğrenilebilir vektörlerle ($l_k, l_v, l_ffn$) günceller.
+* **Parametre Verimliliği:** Eğitilebilir parametre sayısı modelin genel büyüklüğünün yaklaşık **%0.01**'idir.
+
+### 3.2. AdaLoRA (Adaptive Low-Rank Adaptation)
+* **Çalışma Prensibi:** Klasik LoRA'daki sabit rank ($r$) yaklaşımı yerine, katmanların önem derecesine göre rank bütçesini dinamik olarak dağıtır. SVD (Singular Value Decomposition) esaslı budama (pruning) adımı kullanır:
+  $$W = W_0 + P \cdot \Lambda \cdot Q$$
+  Eğitim adımları ilerledikçe önemsiz parametreler sıfırlanır, kritik katmanlar daha yüksek rank ile eğitilir.
+
+---
+
+## 4. PROJE İŞ PAKETLERİ VE GÖREV DAĞILIMI (4 KİŞİLİK EKİP)
+
+Proje değerlendirmesinde kod hakimiyeti ve sunum performansı eşit ağırlığa (%50 Rapor / %50 Sunum) sahip olduğu için her üye kendi alanındaki koda ve teorik altyapıya tam olarak hakim olacaktır.
+
+```
+                    ┌────────────────────────────────────────┐
+                    │       JUPYTER NOTEBOOK PIPELINE        │
+                    └───────────────────┬────────────────────┘
+                                        │
+        ┌───────────────────┬───────────┴───────┬───────────────────┐
+        ▼                   ▼                   ▼                   ▼
+ ┌───────────────┐   ┌───────────────┐   ┌───────────────┐   ┌───────────────┐
+ │   GÖREVLİ 1   │   │   GÖREVLİ 2   │   │   GÖREVLİ 3   │   │   GÖREVLİ 4   │
+ │ Model/PEFT    │   │ Veri & Eğitim │   │ Analiz & CAM  │   │ Rapor & Sunum │
+ └───────────────┘   └───────────────┘   └───────────────┘   └───────────────┘
+```
+
+### 🔹 Görevli 1: Model & Adaptasyon Katmanları Uzmanı
+* **Sorumluluk:** Mimari Kurulumu ve PEFT (Parameter-Efficient Fine-Tuning) Yapılandırması.
+* **Çıktılar:** `load_base_model()`, `apply_ia3()`, `apply_adalora()` fonksiyonları ve parametre analiz tablosu.
+* **Sözlü Değerlendirme Hazırlığı:** EVA-02 mimarisindeki SubLN katmanlarının işlevi, IA³ ve AdaLoRA konfigürasyon parametrelerinin kod içerisindeki yeri (`qkv`, `proj` hedefleme).
+
+### 🔹 Görevli 2: Veri İşleme & Eğitim Döngüsü Mühendisi
+* **Sorumluluk:** Veri Ön İşleme, Augmentation ve PyTorch Training Loop.
+* **Çıktılar:** WHOI-Plankton Veri Seti pipeline'ı, `CrossEntropyLoss(label_smoothing=0.1)` kayıp fonksiyonu entegrasyonu, model ağırlıklarının kaydı.
+* **Sözlü Değerlendirme Hazırlığı:** Mikroskopi verilerinde uygulanan dönüştürme (augmentation) mantığı, optimizer seçimi (`AdamW`) ve öğrenme oranı stratejisi.
+
+### 🔹 Görevli 3: Metrikler, Analiz & Görselleştirme Uzmanı
+* **Sorumluluk:** Model Değerlendirmesi, Grafik Derleme ve Interpretability (Açıklanabilirlik).
+* **Çıktılar:** IA³ vs AdaLoRA Karşılaştırmalı Loss/Accuracy Grafikleri, Confusion Matrix, Cohen's Kappa Hesabı ve Grad-CAM Isı Haritaları.
+* **Sözlü Değerlendirme Hazırlığı:** Modellerin hatalı tahmin yaptığı uç örneklerin morfolojik analizi, Grad-CAM görselleştirmesinin kod tarafındaki kancaları (hooks).
+
+### 🔹 Görevli 4: Rapor, Sunum ve Proje Koordinasyon Lideri
+* **Sorumluluk:** Teslim edilecek materyallerin (PDF Rapor, PPT Sunum, Jupyter Notebook) hazırlanması.
+* **Çıktılar:** `Ad_Soyad_proje.pdf` standart raporu, 10 dakikalık sözlü sunum slayt seti ve entegre edilmiş Notebook.
+* **Sözlü Değerlendirme Hazırlığı:** Projenin akademik/çevresel katkısı, modellerin performans karşılaştırma özeti ve gelecekte yapılabilecek iyileştirme önerileri.
+
+---
+
+## 5. ZAMAN VE UYGULAMA TAVİMLİ
+
+| Faz | Süreç | Tamamlanacak Çıktı | Sorumlu |
+| :--- | :--- | :--- | :--- |
+| **Faz 1** | Veri Seti Hazırlığı & Model Kurulumu | Dengeli Veri Seti & Hazır PEFT Mimarisi | Görevli 1 & Görevli 2 |
+| **Faz 2** | IA³ ve AdaLoRA Eğitim Koşuları | Eğitim Logları (.json) & Checkpoint Dosyaları | Görevli 2 |
+| **Faz 3** | Analiz, Metrikler ve Grad-CAM Üretimi | Grafik Setleri & Isı Haritası Çıktıları | Görevli 3 |
+| **Faz 4** | Dokümantasyon, Sunum ve Kod Birleştirme | Final PDF Raporu & PPT Sunumu | Görevli 4 & Tüm Ekip |
+
+---
+
+## 6. ÖRNEK ÇEKİRDEK KOD BLOĞU (JUPYTER IMPLEMENTATION)
+
+```python
+# ==============================================================================
+# PROJE BAŞLATMA KODU (GÖREVLİ 1 & GÖREVLİ 2)
+# ==============================================================================
+import torch
+import torch.nn as nn
+import timm
+from peft import IA3Config, AdaLoraConfig, get_peft_model, TaskType
+
+# Hiperparametre Yapılandırması
+NUM_CLASSES = 12
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+def build_pipeline(method="ia3"):
+    # 1. Base Model Yükleme
+    base_model = timm.create_model(
+        "eva02_base_patch14_224.mim_in22k_ft_in1k", 
+        pretrained=True, 
+        num_classes=NUM_CLASSES
+    )
+    
+    # 2. Adaptör Konfigürasyonu
+    if method == "ia3":
+        config = IA3Config(
+            peft_type="IA3",
+            target_modules=["attn.qkv", "mlp.fc1", "mlp.fc2"],
+            feedforward_modules=["mlp.fc1", "mlp.fc2"],
+            task_type=TaskType.FEATURE_EXTRACTION
+        )
+    elif method == "adalora":
+        config = AdaLoraConfig(
+            peft_type="ADALORA",
+            target_r=8,
+            init_r=12,
+            target_modules=["attn.qkv", "proj"],
+            task_type=TaskType.FEATURE_EXTRACTION
+        )
+    else:
+        raise ValueError("Geçersiz metot seçimi!")
+        
+    model = get_peft_model(base_model, config)
+    return model.to(DEVICE)
+
+if __name__ == "__main__":
+    ia3_test_model = build_pipeline(method="ia3")
+    print("--- IA3 Model Yapısı Başarıyla Kuruldu ---")
+    ia3_test_model.print_trainable_parameters()
+```
+
+---
+
+*Doküman sonudur. Ekip üyelerinin kendi iş paketlerine göre ilgili kütüphane kurulumlarını (`pip install timm peft torch torchvision matplotlib seaborn`) yapmaları gerekmektedir.*

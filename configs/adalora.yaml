@@ -1,0 +1,30 @@
+# AdaLoRA — EVA-02-Base / fitoplankton (12 sınıf)
+method: adalora
+model_name: eva02_base_patch14_224.mim_in22k
+num_classes: 12
+pretrained: true
+
+# total_step = epochs * len(train_loader); train.py computes and overrides this.
+total_step: null
+
+# AdaLoRA-specific
+init_r: 12
+target_r: 8
+lora_alpha: 16
+lora_dropout: 0.05
+delta_t: 10
+
+epochs: 20
+batch_size: 16
+grad_accum: 2
+num_workers: 2
+
+lr: 5.0e-4
+weight_decay: 0.01
+warmup_ratio: 0.05
+label_smoothing: 0.1
+early_stopping_patience: 4
+grad_clip: 1.0
+
+seed: 42
+amp: true
