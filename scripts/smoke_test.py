@@ -221,6 +221,16 @@ def run_method(method: str, args: argparse.Namespace, device: torch.device) -> d
             )
         }
         adalora_cfg = model.peft_config["default"]
+        rank_total = sum(ranks_after.values())
+        rank_budget_ok = None
+        if steps > adalora_cfg.total_step - adalora_cfg.tfinal:
+            expected_rank_total = adalora_cfg.target_r * len(ranks_after)
+            rank_budget_ok = rank_total == expected_rank_total
+            if not rank_budget_ok:
+                raise RuntimeError(
+                    "AdaLoRA final rank budget mismatch: "
+                    f"expected {expected_rank_total}, got {rank_total}"
+                )
         result.update(
             {
                 "adalora_total_step": adalora_cfg.total_step,
@@ -230,6 +240,8 @@ def run_method(method: str, args: argparse.Namespace, device: torch.device) -> d
                 "adalora_init_r": adalora_cfg.init_r,
                 "adalora_target_r": adalora_cfg.target_r,
                 "rank_layers": len(ranks_after),
+                "rank_total": rank_total,
+                "rank_budget_ok": rank_budget_ok,
                 "rank_layers_changed": changed,
                 "rank_steps_changed": changed_steps,
                 "rank_distribution": rank_distribution,
@@ -274,6 +286,8 @@ def main() -> None:
         if result["method"] == "adalora":
             print(
                 f"         | rank layers={result['rank_layers']}, "
+                f"total={result['rank_total']}, "
+                f"budget_ok={result['rank_budget_ok']}, "
                 f"changed={result['rank_layers_changed']}, "
                 f"steps={result['rank_steps_changed']}"
             )

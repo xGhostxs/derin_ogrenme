@@ -8,11 +8,12 @@ pretrained: true
 total_step: null
 
 # AdaLoRA-specific
+# tinit ve tfinal src/models.py içinde otomatik: total_step'in ~%10'u ve ~%20'si.
 init_r: 12
 target_r: 8
 lora_alpha: 16
 lora_dropout: 0.05
-delta_t: 10
+delta_t: 10  # AdaLoraConfig.deltaT
 
 epochs: 20
 batch_size: 16

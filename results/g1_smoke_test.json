@@ -4,7 +4,7 @@
     "model": "eva02_base_patch14_224.mim_in22k",
     "device": "cpu",
     "steps": 2,
-    "elapsed_sec": 3.374,
+    "elapsed_sec": 3.815,
     "loss": 1.3250840902328491,
     "logits_shape": [
       1,
@@ -22,7 +22,7 @@
     "model": "eva02_base_patch14_224.mim_in22k",
     "device": "cpu",
     "steps": 20,
-    "elapsed_sec": 79.196,
+    "elapsed_sec": 77.411,
     "loss": 7.867782187531702e-06,
     "logits_shape": [
       1,
@@ -41,6 +41,8 @@
     "adalora_init_r": 12,
     "adalora_target_r": 8,
     "rank_layers": 84,
+    "rank_total": 672,
+    "rank_budget_ok": true,
     "rank_layers_changed": 83,
     "rank_steps_changed": [
       10,
