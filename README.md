@@ -28,7 +28,8 @@ results/                   # JSON, figür, checkpoint (checkpoint'ler git dış�
 
 ## Hızlı başlangıç (Colab)
 
-1. Bu klasörü GitHub'a push edin (veya Drive'a yükleyin).
+1. Bu klasörü GitHub'a push edin (public repo Colab'da en kolayıdır; private
+   repo için token veya Drive'a yükleme gerekir).
 2. Colab'da yeni notebook açın; runtime türünü **GPU** yapın.
 3. Repoyu klonlayın:
 
