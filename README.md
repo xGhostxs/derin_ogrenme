@@ -34,7 +34,7 @@ results/                   # JSON, figür, checkpoint (checkpoint'ler git dış�
 3. Repoyu klonlayın:
 
 ```bash
-!git clone https://github.com/KULLANICI/REPO.git /content/derin-ogrenme-proje
+!git clone https://github.com/xGhostxs/derin_ogrenme.git /content/derin-ogrenme-proje
 %cd /content/derin-ogrenme-proje
 ```
 
