@@ -108,13 +108,17 @@
 - Cankat → tüm ekip: kod inceleme SLA'sı (aynı gün).
 
 **Kabul kriteri (Definition of Done)**
-- [ ] İki yöntem de CPU ve GPU'da kuruluyor; forward/backward sonlu loss üretiyor.
-- [ ] `print_trainable_parameters()` çıktıları kayıtlı; ölçülen değerler: IA³ ~%0.10, AdaLoRA ~%2.40 (tüm attention + SwiGLU hedefleri, `init_r=12`/`target_r=8`). Kesin değerler ve hedef seti raporlanacak.
-- [ ] `head` eğitilebilir; adapter save/load sonrası logitler `allclose`.
-- [ ] AdaLoRA rank dağılımı adımlar ilerledikçe değişiyor ve grafikleniyor.
+- [x] İki yöntem de CPU ve GPU'da kuruluyor; forward/backward sonlu loss üretiyor.
+- [x] `print_trainable_parameters()` çıktıları kayıtlı; ölçülen değerler: IA³ ~%0.10, AdaLoRA ~%2.40 (tüm attention + SwiGLU hedefleri, `init_r=12`/`target_r=8`). Kesin değerler ve hedef seti raporlanacak.
+- [x] `head` eğitilebilir; adapter save/load sonrası logitler `allclose`.
+- [ ] AdaLoRA rank dağılımı adımlar ilerledikçe değişiyor ve grafikleniyor. (Dağılım/tarihçe JSON'da kayıtlı; grafik Buse'de.)
 - [ ] `total_step` Salih'in döngüsüyle birebir uyumlu; 1 epoch dry run başarılı.
 - [ ] Hafta 2'den sonra arayüz bozulmuyor; değişiklikler ekipçe duyuruluyor.
 - [ ] Final notebook'un teknik bölümleri temiz koşuda hatasız.
+
+> **G1 durumu (24 Kasım 2026):** Model smoke testi Colab T4'te tamamlandı.
+> JSON: `results/g1_smoke_test.json`; ortam/run log: `results/g1_colab_run.md`.
+> Sıradaki adım: Salih'in veri/eğitim döngüsüyle entegrasyon ve 1 epoch dry run.
 
 **Sözlü savunma için hazırlan**
 - SubLN nedir, EVA-02'de neden kullanılır?

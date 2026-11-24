@@ -75,28 +75,32 @@ python scripts/smoke_test.py --method both --no-pretrained --steps 2
 
 ## G1 kabul kriteri
 
-- [ ] IA³ ve AdaLoRA modelleri kuruluyor.
-- [ ] Dummy `[2, 3, 224, 224]` girişte çıkış `[2, 12]`, loss sonlu.
-- [ ] `head` eğitilebilir; parametre oranı kayıtlı.
-- [ ] AdaLoRA etkin rankı (sıfır olmayan `lora_E`) mask adımlarında değişiyor; `tfinal` sonrası hedef bütçede sabitleniyor.
-- [ ] Adapter save/load sonrası logitler `allclose`.
-- [ ] `results/g1_smoke_test.json` üretildi.
+- [x] IA³ ve AdaLoRA modelleri kuruluyor.
+- [x] Dummy `[2, 3, 224, 224]` girişte çıkış `[2, 12]`, loss sonlu.
+- [x] `head` eğitilebilir; parametre oranı kayıtlı.
+- [x] AdaLoRA etkin rankı (sıfır olmayan `lora_E`) mask adımlarında değişiyor; `tfinal` sonrası hedef bütçede sabitleniyor.
+- [x] Adapter save/load sonrası logitler `allclose`.
+- [x] `results/g1_smoke_test.json` üretildi.
 
-## G1 ölçümleri (yerel CPU, 22 Kasım 2026)
+## G1 ölçümleri (Colab T4 GPU, 24 Kasım 2026)
+
+**Ortam:** Tesla T4, Python 3.13.16, torch 2.14.1+cu130, timm 1.0.31,
+peft 0.21.3.
 
 | Yöntem | Eğitilebilir / Toplam | Oran | Round-trip | Not |
 | :--- | ---: | ---: | :---: | :--- |
-| IA³ | 89.100 / 85.857.048 | %0.1038 | ✅ | 2 adım |
-| AdaLoRA | 2.111.484 / 87.879.516 | %2.4027 | ✅ | 20 adım, etkin rank 1008 → 672 |
+| IA³ | 89.100 / 85.857.048 | %0.1038 | ✅ | 2 adım, loss 1.5033 |
+| AdaLoRA | 2.111.484 / 87.879.516 | %2.4027 | ✅ | 20 adım, loss 0.0590; etkin rank 1008 → 672 |
 
-- `results/g1_smoke_test.json` pretrained ağırlıklarla üretildi; iki yöntemde de
-  loss sonlu ve çıkış `[1, 12]`.
+- `results/g1_smoke_test.json` Colab T4 GPU'da, pretrained ağırlıklarla
+  üretildi; iki yöntemde de çıkış `[2, 12]`, loss sonlu ve
+  `roundtrip_ok=True`.
 - AdaLoRA 20 adımlık smoke testinde `tinit=2`, `tfinal=4`, `deltaT=10`.
   Etkin rank 16. adımda hedef bütçeye (84 katmanda toplam 672) iniyor ve
-  orada sabitleniyor. Maskeler arasında tripletler yeniden aktifleşebildiği
-  için ara adımlarda (10 → 11) geçici artış görülebilir.
-- Bu tablo eğitim başarısı değil, G1 altyapı doğrulamasıdır; Colab GPU koşusu
-  tekrarlanacak.
+  orada sabitleniyor; `rank_budget_ok=True`. Maskeler arasında tripletler
+  yeniden aktifleşebildiği için ara adımlarda (10 → 11) geçici artış
+  görülebilir.
+- Ayrıntılı ortam ve run log: `results/g1_colab_run.md`.
 
 ## Notlar
 
