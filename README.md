@@ -23,6 +23,7 @@ scripts/inspect_modules.py # hedef modül isimlerini doğrular
 scripts/smoke_test.py      # G1: dataset olmadan forward/backward testi
 notebooks/                 # Colab notebook'ları
 configs/                   # IA³ ve AdaLoRA hiperparametreleri
+docs/                      # ekip içi entegrasyon ve devir notları
 results/                   # JSON, figür, checkpoint (checkpoint'ler git dışı)
 ```
 
@@ -101,6 +102,7 @@ peft 0.21.3.
   yeniden aktifleşebildiği için ara adımlarda (10 → 11) geçici artış
   görülebilir.
 - Ayrıntılı ortam ve run log: `results/g1_colab_run.md`.
+- Salih'in eğitim döngüsü için entegrasyon sözleşmesi: `docs/handoff_salih.md`.
 
 ## Notlar
 
